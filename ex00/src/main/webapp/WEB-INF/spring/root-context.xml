@@ -1,0 +1,38 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xmlns:context="http://www.springframework.org/schema/context"
+	xmlns:mybatis-spring="http://mybatis.org/schema/mybatis-spring"
+	xsi:schemaLocation="http://mybatis.org/schema/mybatis-spring http://mybatis.org/schema/mybatis-spring-1.2.xsd
+		http://www.springframework.org/schema/beans https://www.springframework.org/schema/beans/spring-beans.xsd
+		http://www.springframework.org/schema/context http://www.springframework.org/schema/context/spring-context-4.3.xsd">
+	
+	<!-- Root Context: defines shared resources visible to all other web components -->
+	<!-- dataSource 빈 추가 -->
+	<bean id="hikariConfig" class="com.zaxxer.hikari.HikariConfig">
+		<!-- <property name="driverClassName" value="oracle.jdbc.driver.OracleDriver"></property>
+	 	<property name="jdbcUrl" value="jdbc:oracle:thin:@localhost:1521:XE"></property> -->
+	 	
+	 	<property name="driverClassName" value="net.sf.log4jdbc.sql.jdbcapi.DriverSpy"></property>
+	 	<property name="jdbcUrl" value="jdbc:log4jdbc:oracle:thin:@localhost:1521:XE"></property>
+		<property name="username" value="book_ex"></property>
+		<property name="password" value="1234"></property>
+	</bean>
+	
+    <!-- hikariCP 빈 추가 -->
+    <bean id="dataSource" class="com.zaxxer.hikari.HikariDataSource" destroy-method="close">
+    	<constructor-arg ref="hikariConfig"/>
+    </bean>
+
+    <!-- sqlSession 생성하는 빈 추가 : 마이바티스와 스프링 연동작업 처리 -->
+	<bean id="sqlSessionFactory" class="org.mybatis.spring.SqlSessionFactoryBean">
+		<property name="dataSource" ref="dataSource"></property>
+	</bean>    
+	
+	<!-- 마이바티스 매퍼 인식을 위한 '컴포넌트 스캔' 설정 -->
+    <mybatis-spring:scan base-package="org.zerock.mapper"/>
+		
+    <!-- 쉐프와 레스토랑 의존성 주입 예제를 위해 '컴포넌트 스캔' 설정 : servlet-context.xml은 web 관련 빈 설정을 하기 때문에 root-context.xml에서 처리 -->
+    <context:component-scan base-package="org.zerock.sample">
+    </context:component-scan>
+</beans>
